@@ -1,0 +1,129 @@
+We will be using the tkinter library for creating the GUI and the MVC pattern for structuring the code. The MVC pattern separates the application into three components: Model, View, and Controller. 
+
+The Model represents the data and the rules of the application. The View represents the user interface and anything that the user interacts with on the screen. The Controller handles the input from the user and updates the Model and View accordingly.
+
+Here are the core classes, functions, and methods that will be necessary:
+
+1. `CalculatorModel`: This class will represent the Model in the MVC pattern. It will contain the logic for performing the calculator operations (addition, subtraction, multiplication, division).
+
+2. `CalculatorView`: This class will represent the View in the MVC pattern. It will contain the code for creating the GUI and displaying the result to the user.
+
+3. `CalculatorController`: This class will represent the Controller in the MVC pattern. It will handle the input from the user and update the Model and View accordingly.
+
+4. `main`: This function will be the entry point of the application. It will create instances of the Model, View, and Controller, and start the main event loop of the tkinter GUI.
+
+Now, let's write the code for each of these components.
+
+main.py
+```python
+from tkinter import Tk
+from model import CalculatorModel
+from view import CalculatorView
+from controller import CalculatorController
+
+def main():
+    root = Tk()
+    model = CalculatorModel()
+    view = CalculatorView(root)
+    controller = CalculatorController(model, view)
+    view.set_controller(controller)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+```
+
+model.py
+```python
+class CalculatorModel:
+    def add(self, num1, num2):
+        return num1 + num2
+
+    def subtract(self, num1, num2):
+        return num1 - num2
+
+    def multiply(self, num1, num2):
+        return num1 * num2
+
+    def divide(self, num1, num2):
+        return num1 / num2
+```
+
+view.py
+```python
+from tkinter import Entry, Button, StringVar, Tk
+
+class CalculatorView:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Calculator")
+        self.entry_var = StringVar()
+        self.entry = Entry(self.root, textvariable=self.entry_var)
+        self.entry.grid(row=0, column=0, columnspan=4)
+        self.create_buttons()
+
+    def create_buttons(self):
+        buttons = [
+            '7', '8', '9', '/',
+            '4', '5', '6', '*',
+            '1', '2', '3', '-',
+            '0', '.', '=', '+',
+        ]
+        row_val = 1
+        col_val = 0
+        for button in buttons:
+            Button(self.root, text=button, command=lambda button=button: self.controller.button_click(button)).grid(row=row_val, column=col_val)
+            col_val += 1
+            if col_val > 3:
+                col_val = 0
+                row_val += 1
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def set_entry_text(self, text):
+        self.entry_var.set(text)
+
+    def get_entry_text(self):
+        return self.entry_var.get()
+```
+
+controller.py
+```python
+class CalculatorController:
+    def __init__(self, model, view):
+        self.model = model
+        self.view = view
+        self.first_num = ""
+        self.second_num = ""
+        self.operator = ""
+
+    def button_click(self, button):
+        if button in ['+', '-', '*', '/']:
+            self.operator = button
+            self.first_num = self.view.get_entry_text()
+            self.view.set_entry_text("")
+        elif button == "=":
+            self.second_num = self.view.get_entry_text()
+            if self.operator == "+":
+                result = self.model.add(float(self.first_num), float(self.second_num))
+            elif self.operator == "-":
+                result = self.model.subtract(float(self.first_num), float(self.second_num))
+            elif self.operator == "*":
+                result = self.model.multiply(float(self.first_num), float(self.second_num))
+            elif self.operator == "/":
+                result = self.model.divide(float(self.first_num), float(self.second_num))
+            self.view.set_entry_text(str(result))
+            self.first_num = ""
+            self.second_num = ""
+            self.operator = ""
+        else:
+            self.view.set_entry_text(self.view.get_entry_text() + button)
+```
+
+requirements.txt
+```plaintext
+tkinter==8.6
+```
+
+This code should be fully functional. The user can input numbers and operations by clicking the buttons on the GUI, and the result will be displayed on the screen.
